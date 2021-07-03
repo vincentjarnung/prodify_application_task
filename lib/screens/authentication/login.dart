@@ -24,7 +24,9 @@ class _LogInState extends State<LogIn> with TickerProviderStateMixin {
     double statusBarHeight = MediaQuery.of(context).padding.top;
 
     TextStyle header = TextStyle(
-        fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFFfefae0));
+        fontSize: 30,
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).accentColor);
     return SingleChildScrollView(
       child: Form(
         key: _formKey,

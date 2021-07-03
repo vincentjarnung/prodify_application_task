@@ -14,8 +14,9 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primaryColor: Color(0xFF606c38),
-        accentColor: Color(0xFFfefae0),
+        accentColor: Color(0xFFF8F2ED),
       ),
+      // Color(0xFFfefae0)- really warm white
       /* Would like to send this to a wrapper class that sends the user either 
       directly to the landing page if the user exist, or the auth page if 
       it is a new user. With help from the provider package. */

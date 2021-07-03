@@ -29,7 +29,9 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
     double statusBarHeight = MediaQuery.of(context).padding.top;
 
     TextStyle header = TextStyle(
-        fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFFfefae0));
+        fontSize: 30,
+        fontWeight: FontWeight.bold,
+        color: Theme.of(context).accentColor);
     return Scaffold(
       backgroundColor: Theme.of(context).accentColor,
       body: GestureDetector(
@@ -44,7 +46,7 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
                 child: AnimatedContainer(
                     duration: Duration(milliseconds: 1000),
                     curve: Curves.fastOutSlowIn,
-                    height: maxHeight * _multiplierTop,
+                    height: 870 * _multiplierTop,
                     width: maxWidht,
                     decoration: BoxDecoration(
                       color: Theme.of(context).primaryColor,
