@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:prodify_application_task/screens/landing_page.dart';
+import 'package:prodify_application_task/sevices/auth_services.dart';
 import 'package:prodify_application_task/shared/custom_text_field.dart';
 import 'package:prodify_application_task/shared/rounded_button.dart';
 
@@ -11,6 +12,7 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
+  AuthServices _authServices = AuthServices();
   final _formKey = GlobalKey<FormState>();
   // Validates email and password
   RegExp _emailVal = RegExp(
@@ -20,6 +22,8 @@ class _RegisterState extends State<Register> {
   String _name = '';
   String _email = '';
   String _password = '';
+
+  String _errorText = '';
 
   FocusNode _nameFocusNode = FocusNode();
   FocusNode _emailFocusNode = FocusNode();
@@ -136,6 +140,10 @@ class _RegisterState extends State<Register> {
             textInputAction: TextInputAction.done,
             focusNode: _confirmPasswordFocusNode,
           ),
+          Text(
+            _errorText,
+            style: TextStyle(color: Colors.red),
+          ),
           SizedBox(
             height: 40,
           ),
@@ -153,15 +161,35 @@ class _RegisterState extends State<Register> {
     );
   }
 
-  void _register() {
-    if (_formKey.currentState!.validate()) {
-      /* Here I want to send the data to an api to request the registration, if it is 
-      succsessfull I can notify the provider so the user automatically get sent
-      to the landing page by the wrapper*/
+  void _onLoading() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(
+              child: CircularProgressIndicator(
+            color: Theme.of(context).accentColor,
+          ));
+        });
+  }
 
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => LandingPage()),
-          (Route<dynamic> route) => false);
+  void _register() async {
+    if (_formKey.currentState!.validate()) {
+      _onLoading();
+      var result = await _authServices.register(_name, _email, _password);
+
+      print(result);
+      if (result['success']) {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => LandingPage()),
+            (Route<dynamic> route) => false);
+      } else {
+        Navigator.of(context).pop();
+        FocusScope.of(context).requestFocus(new FocusNode());
+        setState(() {
+          _errorText = result['msg'];
+        });
+      }
     }
   }
 }

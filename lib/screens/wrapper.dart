@@ -1,52 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:prodify_application_task/models/user.dart';
+
 import 'package:prodify_application_task/screens/authentication/auth_page.dart';
 import 'package:prodify_application_task/screens/landing_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class Wrapper extends StatelessWidget {
+// Currently doing nothing
+class Wrapper extends StatefulWidget {
+  @override
+  static void restartApp(BuildContext context) {
+    context.findAncestorStateOfType<_WrapperState>()!.restartApp();
+  }
+
+  _WrapperState createState() => _WrapperState();
+}
+
+class _WrapperState extends State<Wrapper> {
+  Key key = UniqueKey();
+  bool _isLoggedIn = false;
+
+  void restartApp() {
+    setState(() {
+      key = UniqueKey();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<bool> getUser() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var loggedInUser = prefs.getString('user');
+
+    if (loggedInUser != null) {
+      _isLoggedIn = true;
+    }
+    return _isLoggedIn;
+  }
+
   @override
   Widget build(BuildContext context) {
-    /* Here I would check if an user exist and then send them to the correct page
+    return Container();
+    // Here I would check if an user exist and then send them to the correct page
 
-    final user = Provider.of<User>(context);
+    /* AuthProvider _authProvider = AuthProvider();
 
-    if (user = null) {
-      return AuthPage();
-    } else {
+    if (_authProvider.isAuthenticated) {
       return LandingPage();
-    }*/
-    return Scaffold(
-      body: Center(
-        child: Column(
-          children: [
-            SizedBox(
-              height: 100,
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context)
-                    .push(MaterialPageRoute(builder: (context) => AuthPage()));
-              },
-              child: Text(
-                'Log In or Register',
-                textScaleFactor: 1.5,
-              ),
-            ),
-            SizedBox(
-              height: 60,
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => LandingPage()));
-              },
-              child: Text(
-                'Landing Page',
-                textScaleFactor: 1.5,
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+    } else {
+      return AuthPage();
+    } */
   }
 }

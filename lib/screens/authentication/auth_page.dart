@@ -17,6 +17,8 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
   bool _isRegister = false;
   bool _isLogIn = true;
 
+  ScrollController _scrollController = ScrollController();
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setPreferredOrientations([
@@ -32,6 +34,7 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
         fontSize: 30,
         fontWeight: FontWeight.bold,
         color: Theme.of(context).accentColor);
+
     return Scaffold(
       backgroundColor: Theme.of(context).accentColor,
       body: GestureDetector(
@@ -39,6 +42,7 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
           FocusScope.of(context).unfocus();
         },
         child: SingleChildScrollView(
+          controller: _scrollController,
           child: Column(
             children: [
               ClipPath(

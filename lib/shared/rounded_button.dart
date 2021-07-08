@@ -7,26 +7,39 @@ class RoundedButton extends StatelessWidget {
   final VoidCallback? onClick;
   final double width;
   final double height;
+  final Color? borderColor;
 
-  RoundedButton(
-      {required this.backroundColor,
-      required this.textColor,
-      required this.text,
-      required this.onClick,
-      this.width = 150,
-      this.height = 45});
+  RoundedButton({
+    required this.backroundColor,
+    required this.textColor,
+    required this.text,
+    required this.onClick,
+    this.width = 150,
+    this.height = 45,
+    this.borderColor,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20), color: backroundColor),
       height: height,
       width: width,
       child: TextButton(
         style: ButtonStyle(
-          overlayColor: MaterialStateColor.resolveWith(
-            (states) => textColor.withOpacity(0.5),
+          backgroundColor: MaterialStateProperty.all(backroundColor),
+          overlayColor: MaterialStateProperty.all(
+            textColor.withOpacity(0.5),
+          ),
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: borderColor != null
+                  ? BorderSide(
+                      color: borderColor!,
+                      width: 2,
+                    )
+                  : BorderSide.none,
+            ),
           ),
         ),
         child: Text(

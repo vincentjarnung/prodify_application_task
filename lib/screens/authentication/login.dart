@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:prodify_application_task/screens/landing_page.dart';
+import 'package:prodify_application_task/screens/wrapper.dart';
+import 'package:prodify_application_task/sevices/auth_services.dart';
 import 'package:prodify_application_task/shared/custom_text_field.dart';
 import 'package:prodify_application_task/shared/rounded_button.dart';
 
@@ -11,6 +13,13 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> with TickerProviderStateMixin {
+  AuthServices _authServices = AuthServices();
+
+  String _email = '';
+  String _password = '';
+  String _token = '';
+  String _errorText = '';
+
   final _formKey = GlobalKey<FormState>();
   RegExp _emailVal = RegExp(
       r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
@@ -47,7 +56,9 @@ class _LogInState extends State<LogIn> with TickerProviderStateMixin {
               hintText: 'Email',
               prefixIconData: Icons.email,
               obscureText: false,
-              onChanged: (val) {},
+              onChanged: (val) {
+                _email = val;
+              },
               validator: (val) {
                 if (!_emailVal.hasMatch(val!)) {
                   return "Must contain one capital charakter and one number";
@@ -61,7 +72,7 @@ class _LogInState extends State<LogIn> with TickerProviderStateMixin {
               },
               textInputAction: TextInputAction.next,
               focusNode: _emailFocusNode,
-              errorStyle: TextStyle(color: Colors.red[200]),
+              errorStyle: TextStyle(color: Colors.red[300]),
             ),
             SizedBox(
               height: 20,
@@ -71,7 +82,9 @@ class _LogInState extends State<LogIn> with TickerProviderStateMixin {
               hintText: 'Password',
               prefixIconData: Icons.password,
               obscureText: true,
-              onChanged: (val) {},
+              onChanged: (val) {
+                _password = val;
+              },
               validator: (val) {
                 if (val!.length < 6) {
                   return "Must contain at least 6 characters";
@@ -85,10 +98,14 @@ class _LogInState extends State<LogIn> with TickerProviderStateMixin {
               onEditingComplete: _logIn,
               textInputAction: TextInputAction.done,
               focusNode: _passwordFocusNode,
-              errorStyle: TextStyle(color: Colors.red[200]),
+              errorStyle: TextStyle(color: Colors.red[300]),
+            ),
+            Text(
+              _errorText,
+              style: TextStyle(color: Colors.red[300], fontSize: 16),
             ),
             SizedBox(
-              height: 40,
+              height: 30,
             ),
             RoundedButton(
               backroundColor: Theme.of(context).accentColor,
@@ -100,31 +117,52 @@ class _LogInState extends State<LogIn> with TickerProviderStateMixin {
               height: 30,
             ),
             TextButton(
-                onPressed: () {},
-                style: ButtonStyle(
-                    overlayColor: MaterialStateColor.resolveWith((states) =>
-                        Theme.of(context).accentColor.withOpacity(0.1))),
-                child: Text(
-                  'Forgot Password?',
-                  style: TextStyle(
-                      color: Theme.of(context).accentColor,
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold),
-                ))
+              onPressed: () {},
+              style: ButtonStyle(
+                  overlayColor: MaterialStateColor.resolveWith((states) =>
+                      Theme.of(context).accentColor.withOpacity(0.1))),
+              child: Text(
+                'Forgot Password?',
+                style: TextStyle(
+                    color: Theme.of(context).accentColor,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 
-  void _logIn() {
+  void _onLoading() {
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return Center(
+              child: CircularProgressIndicator(
+            color: Theme.of(context).accentColor,
+          ));
+        });
+  }
+
+  Future _logIn() async {
     if (_formKey.currentState!.validate()) {
-      /* Here I want to send the data to an api to request a login, if it is 
-      succsessfull I can notify the provider so the user automatically get sent
-      to the landing page by the wrapper*/
-      Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (context) => LandingPage()),
-          (Route<dynamic> route) => false);
+      _onLoading();
+      var result = await _authServices.login(_email, _password);
+
+      if (result['success']) {
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (context) => LandingPage()),
+            (Route<dynamic> route) => false);
+      } else {
+        Navigator.of(context).pop();
+        FocusScope.of(context).requestFocus(new FocusNode());
+        setState(() {
+          _errorText = result['msg'];
+        });
+      }
     }
   }
 }
