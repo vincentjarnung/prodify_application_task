@@ -117,7 +117,7 @@ class _AuthPageState extends State<AuthPage> with TickerProviderStateMixin {
   void _animatedTransition() {
     setState(() {
       if (!_isRegister && _isLogIn) {
-        _multiplierTop = 0.27;
+        _multiplierTop = 0.25;
         _isRegister = true;
         _goRegister();
       } else if (_isRegister && !_isLogIn) {

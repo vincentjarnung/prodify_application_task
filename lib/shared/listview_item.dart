@@ -2,85 +2,82 @@ import 'package:flutter/material.dart';
 
 class ListViewItem extends StatelessWidget {
   final VoidCallback onTap;
+  final String type;
   final String title;
   final String info;
-  final String price;
-  final String ratings;
-  final String reviews;
-  final Image image;
-  const ListViewItem({
-    Key? key,
-    required this.onTap,
-    required this.title,
-    required this.info,
-    required this.image,
-    required this.price,
-    required this.ratings,
-    required this.reviews,
-  }) : super(key: key);
+  final double price;
+  final double mAway;
+
+  final String imageDir;
+  const ListViewItem(
+      {Key? key,
+      required this.onTap,
+      required this.type,
+      required this.title,
+      required this.info,
+      required this.imageDir,
+      required this.price,
+      required this.mAway})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    double maxWidth = MediaQuery.of(context).size.width;
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        height: 350,
         color: Theme.of(context).accentColor,
         child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(5.0),
+          child: Card(
+            margin: EdgeInsets.symmetric(horizontal: 20, vertical: 5),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Container(width: 110, child: image),
-                    SizedBox(
-                      width: 10,
-                    ),
-                    Expanded(
+                Container(
+                  height: 200,
+                  width: maxWidth,
+                  child: Image.asset(
+                    'assets/images/sushi.png',
+                    fit: BoxFit.fill,
+                  ),
+                ),
+                SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: Container(
+                    width: maxWidth,
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                title,
-                                textScaleFactor: 1.1,
-                              ),
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.star,
-                                    size: 20,
-                                    color: Theme.of(context).primaryColor,
-                                  ),
-                                  Text(
-                                    ratings,
-                                    textScaleFactor: 0.9,
-                                  ),
-                                  Text(
-                                    '($reviews)',
-                                    textScaleFactor: 0.8,
-                                  ),
-                                ],
-                              ),
-                            ],
+                          Text(
+                            '$title | $type',
+                            textScaleFactor: 1.3,
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5),
                             child: Text(
-                              info,
-                              textScaleFactor: 1.1,
+                              'Price: ${price.toInt()} sek',
+                              textScaleFactor: 1.2,
                             ),
                           ),
                           Text(
-                            'Price: $price \$',
-                            textScaleFactor: 1.1,
+                            info,
+                            textScaleFactor: 1.2,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            child: Text(
+                              'Resturant is ${mAway.toInt()}m away',
+                              textScaleFactor: 1.2,
+                            ),
                           ),
                         ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ],
             ),

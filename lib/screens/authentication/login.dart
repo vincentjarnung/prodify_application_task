@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:prodify_application_task/screens/landing_page.dart';
-import 'package:prodify_application_task/screens/wrapper.dart';
 import 'package:prodify_application_task/sevices/auth_services.dart';
 import 'package:prodify_application_task/shared/custom_text_field.dart';
 import 'package:prodify_application_task/shared/rounded_button.dart';
@@ -15,14 +14,11 @@ class LogIn extends StatefulWidget {
 class _LogInState extends State<LogIn> with TickerProviderStateMixin {
   AuthServices _authServices = AuthServices();
 
-  String _email = '';
+  String _userName = '';
   String _password = '';
-  String _token = '';
   String _errorText = '';
 
   final _formKey = GlobalKey<FormState>();
-  RegExp _emailVal = RegExp(
-      r"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,253}[a-zA-Z0-9])?)*$");
   RegExp _passwordVal = RegExp(r'^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9]).{6,}$');
 
   FocusNode _emailFocusNode = FocusNode();
@@ -53,20 +49,19 @@ class _LogInState extends State<LogIn> with TickerProviderStateMixin {
             ),
             CustomTextField(
               color: Theme.of(context).accentColor,
-              hintText: 'Email',
-              prefixIconData: Icons.email,
+              hintText: 'Username',
+              prefixIconData: Icons.text_fields,
               obscureText: false,
               onChanged: (val) {
-                _email = val;
+                _userName = val;
               },
               validator: (val) {
-                if (!_emailVal.hasMatch(val!)) {
-                  return "Must contain one capital charakter and one number";
+                if (val!.isEmpty) {
+                  return "Enter a Usename";
                 } else {
                   return null;
                 }
               },
-              isEmail: true,
               onEditingComplete: () {
                 FocusScope.of(context).nextFocus();
               },
@@ -88,13 +83,10 @@ class _LogInState extends State<LogIn> with TickerProviderStateMixin {
               validator: (val) {
                 if (val!.length < 6) {
                   return "Must contain at least 6 characters";
-                } else if (!_passwordVal.hasMatch(val)) {
-                  return 'Must contain one capital charakter and one number';
                 } else {
                   return null;
                 }
               },
-              isEmail: false,
               onEditingComplete: _logIn,
               textInputAction: TextInputAction.done,
               focusNode: _passwordFocusNode,
@@ -150,8 +142,9 @@ class _LogInState extends State<LogIn> with TickerProviderStateMixin {
   Future _logIn() async {
     if (_formKey.currentState!.validate()) {
       _onLoading();
-      var result = await _authServices.login(_email, _password);
+      var result = await _authServices.login(_userName, _password);
 
+      print(result);
       if (result['success']) {
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (context) => LandingPage()),

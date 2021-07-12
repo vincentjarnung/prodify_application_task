@@ -1,81 +1,123 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:prodify_application_task/models/user.dart';
+import 'package:prodify_application_task/screens/authentication/login.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthServices {
-  String url = "https://prodifytask.herokuapp.com/";
+  String path = "http://app.bookmyfood.se:8085";
 
-  Future login(email, password) async {
-    print('start');
+  Future login(userName, password) async {
     var response = await http.post(
-      Uri.parse(url + "authenticate"),
+      Uri.parse("http://app.bookmyfood.se:8085/api/accounts/login"),
       headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
+        'accept': 'application/json',
+        'Content-Type': 'application/json'
       },
-      body: jsonEncode(<String, String>{'email': email, 'password': password}),
+      body: jsonEncode(<String, dynamic>{
+        'password': password,
+        'username': userName,
+      }),
     );
 
     if (response.statusCode == 200) {
-      var result = jsonDecode(response.body) as Map;
-      String token = result['token'];
-      String name = await getName(token);
+      Map data = json.decode(response.body);
+      if (data["error"] == null) {
+        print(data["content"]);
+        var account = data["content"];
+        //int accountID = account["account-id"];
+        //List accountType = account["account-type"];
+        String token = account["token"];
 
-      User loggedInUser = User(name: name, email: email, token: token);
+        SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString('token', token);
 
-      prefs.setString('user', jsonEncode(User.fromJson(loggedInUser.toJson())));
-
-      return result;
-    } else if (response.statusCode == 403) {
-      var result = jsonDecode(response.body) as Map;
-      print(result['msg']);
-      return result;
+        return {'success': true, 'acount-id': account["account-id"]};
+      } else {
+        return {'success': false, 'msg': data["error"]};
+      }
+    } else if (response.statusCode == 404) {
+      Map data = json.decode(response.body);
+      Map error = data["error"];
+      return {'success': false, 'msg': error["resolution"]};
+    } else if (response.statusCode == 401) {
+      Map data = json.decode(response.body);
+      Map error = data["error"];
+      return {'success': false, 'msg': error["resolution"]};
     } else {
-      return {"success": false, "msg": "Unknown error"};
+      print('Error fetching data, code: ${response.statusCode}');
+      return {'success': false, 'msg': 'Failed connecting to server'};
     }
   }
 
-  Future register(name, email, password) async {
-    if (!await uniqueEmail(email)) {
-      return {'success': false, 'msg': 'Email already exists'};
-    }
-    if (!await uniqueName(name)) {
-      return {'success': false, 'msg': 'Name already exists'};
-    }
-    var response = await http.post(
-      Uri.parse(url + "adduser"),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-      body: jsonEncode(
-          <String, String>{'name': name, 'email': email, 'password': password}),
-    );
+  Future<Map<String, dynamic>> register({
+    required String address,
+    required String city,
+    required String country,
+    required String email,
+    required String firstName,
+    required String lastName,
+    required String password,
+    required String phoneNumber,
+    required String userName,
+    required String zipCode,
+  }) async {
+    var response = await http.post(Uri.parse(path + "/api/accounts"),
+        headers: <String, String>{
+          'accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: json.encode({
+          "address": address,
+          "city": city,
+          "country": country,
+          "email-id": email,
+          "first-name": firstName,
+          "is-foodie-account": true,
+          "is-kitchen-account": true,
+          "last-name": lastName,
+          "password": password,
+          "phone-number": phoneNumber,
+          "username": userName,
+          "zip-code": zipCode
+        }));
+
+    print(json.encode({
+      "address": address,
+      "city": city,
+      "country": country,
+      "email-id": email,
+      "first-name": firstName,
+      "is-foodie-account": true,
+      "is-kitchen-account": true,
+      "last-name": lastName,
+      "password": password,
+      "phone-number": phoneNumber,
+      "username": userName,
+      "zip-code": zipCode
+    }));
+
     if (response.statusCode == 200) {
-      var result = jsonDecode(response.body) as Map;
+      Map data = json.decode(response.body);
+      if (data["error"] == null) {
+        Map account = data["content"];
 
-      var data = await login(email, password);
+        print(login(userName, password));
 
-      String token = data['token'];
-
-      print(token);
-
-      User loggedInUser = User(name: name, email: email, token: token);
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-
-      prefs.setString('user', jsonEncode(User.fromJson(loggedInUser.toJson())));
-      return result;
+        return {'success': true, 'acount-id': account["acount-id"]};
+      } else {
+        return {'success': false, 'msg': data["error"]};
+      }
     } else {
-      print(response.statusCode);
-      return {"success": false, "msg": "Unknown error"};
+      print('Error fetching data, code: ${response.statusCode}');
+      return {'success': false, 'msg': 'Failed connecting to server'};
     }
   }
 
   Future<String> getName(String token) async {
     var response = await http.get(
-      Uri.parse(url + "getname"),
+      Uri.parse(path + "getname"),
       headers: <String, String>{
         'Authorization': 'Bearer $token',
       },
@@ -93,7 +135,7 @@ class AuthServices {
   Future<bool> uniqueEmail(String email) async {
     bool unique = false;
     var responseEmail = await http.get(
-      Uri.parse(url + "uniqueemail"),
+      Uri.parse(path + "uniqueemail"),
       headers: <String, String>{
         'Email': '$email',
       },
@@ -115,7 +157,7 @@ class AuthServices {
     bool unique = false;
 
     var responseName = await http.get(
-      Uri.parse(url + "uniquename"),
+      Uri.parse(path + "uniquename"),
       headers: <String, String>{
         'Name': '$name',
       },

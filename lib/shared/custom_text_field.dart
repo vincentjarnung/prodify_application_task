@@ -9,7 +9,7 @@ class CustomTextField extends StatefulWidget {
   final bool obscureText;
   final Function(String) onChanged;
   final String? Function(String?)? validator;
-  final bool isEmail;
+  final TextInputType textInputType;
   final VoidCallback onEditingComplete;
   final TextInputAction textInputAction;
   final FocusNode focusNode;
@@ -21,10 +21,10 @@ class CustomTextField extends StatefulWidget {
       required this.color,
       required this.hintText,
       required this.prefixIconData,
-      required this.obscureText,
+      this.obscureText = false,
       required this.onChanged,
       required this.validator,
-      required this.isEmail,
+      this.textInputType = TextInputType.text,
       required this.onEditingComplete,
       required this.textInputAction,
       required this.focusNode,
@@ -52,8 +52,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         textInputAction: widget.textInputAction,
         onEditingComplete: widget.onEditingComplete,
         focusNode: widget.focusNode,
-        keyboardType:
-            widget.isEmail ? TextInputType.emailAddress : TextInputType.text,
+        keyboardType: widget.textInputType,
         validator: widget.validator,
         onChanged: widget.onChanged,
         obscureText: _isObscure,
